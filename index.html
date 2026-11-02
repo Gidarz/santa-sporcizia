@@ -17,7 +17,7 @@
     }
     .vignette {
       position:absolute; inset:0; pointer-events:none; z-index:11;
-      box-shadow:0 0 160px rgba(0,0,0,0.98) inset;
+      box-shadow:0 0 180px rgba(0,0,0,0.99) inset;
     }
     #crosshair {
       position:absolute; inset:0; pointer-events:none; z-index:15;
@@ -25,7 +25,7 @@
     }
     #crosshair::before {
       content:''; display:block; width:10px; height:10px;
-      border:1px solid rgba(200,180,140,0.28);
+      border:1px solid rgba(200,180,140,0.25);
     }
     #graffiti-msg {
       position:absolute; top:42%; left:50%; transform:translate(-50%,-50%);
@@ -47,27 +47,39 @@
       border:1px solid rgba(200,180,140,0.2);
       background:rgba(0,0,0,0.65); padding:6px 18px;
     }
+    /* Loading */
+    #loading-screen {
+      position:absolute; inset:0; z-index:60;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background:#000;
+    }
+    #loading-screen h2 {
+      font-family:'Courier New',monospace; font-size:clamp(1.8rem,6vw,3.5rem);
+      font-weight:900; color:#444030; letter-spacing:0.22em;
+      text-align:center; margin:0 0 2rem;
+      text-shadow:0 0 40px rgba(60,50,30,0.5);
+    }
+    #loading-screen p {
+      font-family:'Courier New',monospace; color:#353020;
+      font-size:0.62rem; letter-spacing:0.5em; text-transform:uppercase;
+      margin:0 0 0.8rem;
+    }
+    #loading-bar-wrap { width:200px; height:2px; background:#1a1510; }
+    #loading-bar { height:100%; width:0%; background:#706040; transition:width 0.25s; }
+    /* Menu */
     #menu {
       position:absolute; inset:0; z-index:40;
-      display:none; flex-direction:column;
-      align-items:center; justify-content:center;
+      display:none; flex-direction:column; align-items:center; justify-content:center;
       background:transparent; pointer-events:auto;
     }
-    #menu .anno {
-      font-family:'Courier New',monospace; font-size:0.62rem;
-      color:#3c3828; letter-spacing:0.45em; font-style:italic; margin-bottom:0.8rem;
-    }
+    #menu .anno { font-family:'Courier New',monospace; font-size:0.62rem; color:#3c3828; letter-spacing:0.45em; font-style:italic; margin-bottom:0.8rem; }
     #menu h1 {
       font-family:'Courier New',monospace; font-size:clamp(3rem,11vw,6.2rem);
       font-weight:900; color:#888070; letter-spacing:0.22em; line-height:1.04;
       text-align:center; margin:0 0 0.15em;
       text-shadow:0 0 70px rgba(80,72,48,0.55);
     }
-    #menu .tagline {
-      font-family:'Courier New',monospace; font-size:0.62rem;
-      color:#3c3828; letter-spacing:0.38em; font-style:italic;
-      margin-bottom:2.8rem; text-align:center;
-    }
+    #menu .tagline { font-family:'Courier New',monospace; font-size:0.62rem; color:#3c3828; letter-spacing:0.38em; font-style:italic; margin-bottom:2.8rem; text-align:center; }
     .menu-btn {
       font-family:'Courier New',monospace; font-size:0.70rem; font-weight:bold;
       letter-spacing:0.30em; background:rgba(8,7,4,0.9); border:1px solid #32281e;
@@ -76,10 +88,7 @@
     }
     #btn-start:hover { border-color:#6a5c38; color:#cbb060; }
     #btn-quit:hover  { border-color:#5a2018; color:#a04838; }
-    #fade {
-      position:absolute; inset:0; z-index:50;
-      background:#000; opacity:1; pointer-events:none; transition:opacity 0.8s;
-    }
+    #fade { position:absolute; inset:0; z-index:50; background:#000; opacity:1; pointer-events:none; transition:opacity 0.8s; }
     #fade.out { opacity:0; }
     .touch-zone {
       position:absolute; bottom:28px; width:98px; height:98px;
@@ -102,6 +111,11 @@
 <div id="graffiti-msg">NON VOLTARTI,&#10;SEI GIA CIBO</div>
 <div id="interact-prompt">[E] APRIRE LA PORTA</div>
 <div id="fade"></div>
+<div id="loading-screen">
+  <h2>SANTA<br>SPORCIZIA</h2>
+  <p id="loading-text">caricamento in corso</p>
+  <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+</div>
 <div id="menu">
   <p class="anno">anno domini — ignoto</p>
   <h1>SANTA<br>SPORCIZIA</h1>
@@ -112,13 +126,127 @@
 <div id="move-zone" class="touch-zone"><div id="move-stick" class="stick"></div></div>
 <div id="look-zone"  class="touch-zone"><div id="look-stick"  class="stick"></div></div>
 
+<!-- Three.js r128 + extras from jsDelivr -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
 <script>
 'use strict';
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   ASSET URLS
+   Gobkit CC0: 10 trees + bushes + grass + cliffs + reeds
+   Kenney CC0: horror pines + dead trunks
+═══════════════════════════════════════════ */
+const GB  = 'https://raw.githubusercontent.com/Ariescar/gobkit-free-assets/main/nature/';
+const KEN = 'https://raw.githubusercontent.com/shorepine/kenney/main/3d/';
+
+const MODEL_URLS = {
+  // Gobkit trees — full variety
+  treeH1:  GB  + 'TreeHigh001.glb',
+  treeH2:  GB  + 'TreeHigh002.glb',
+  treeH3:  GB  + 'TreeHigh003.glb',
+  treeM1:  GB  + 'TreeMed001.glb',
+  treeM2:  GB  + 'TreeMed002.glb',
+  treeM3:  GB  + 'TreeMed003.glb',
+  treeL1:  GB  + 'TreeLow001.glb',
+  treeL2:  GB  + 'TreeLow002.glb',
+  treeL3:  GB  + 'TreeLow003.glb',
+  treeL4:  GB  + 'TreeLow004.glb',
+  // Gobkit vegetation
+  bush1:   GB  + 'Bush001.glb',
+  bush2:   GB  + 'Bush002.glb',
+  grass1:  GB  + 'Grass001.glb',
+  grass2:  GB  + 'Grass002.glb',
+  grass3:  GB  + 'Grass003.glb',
+  reed1:   GB  + 'Reed001.glb',
+  reed2:   GB  + 'Reed002.glb',
+  // Kenney horror extras
+  pine:    KEN + 'graveyard/pine.glb',
+  pineC:   KEN + 'graveyard/pine-crooked.glb',
+  trunk:   KEN + 'graveyard/trunk.glb',
+  trunkL:  KEN + 'graveyard/trunk-long.glb',
+  pineFall:KEN + 'graveyard/pine-fall.glb',
+};
+
+const MODELS = {};
+
+// Horror tree assignment: high trees closer = more pines; variety further out
+const TREE_TABLE = [
+  { key:'pine',   w:0.20 },
+  { key:'pineC',  w:0.14 },
+  { key:'treeH1', w:0.12 },
+  { key:'treeH2', w:0.10 },
+  { key:'treeH3', w:0.08 },
+  { key:'treeM1', w:0.10 },
+  { key:'treeM2', w:0.08 },
+  { key:'treeM3', w:0.06 },
+  { key:'treeL1', w:0.05 },
+  { key:'treeL2', w:0.04 },
+  { key:'trunk',  w:0.03 },
+];
+function pickTree(t) {
+  let c=0; for (const e of TREE_TABLE) { c+=e.w; if (t<c) return e.key; }
+  return 'pine';
+}
+
+/* Darken + desaturate GLTF materials for horror atmosphere */
+function horrorMat(m) {
+  const c = m.clone();
+  const hsl = {h:0,s:0,l:0};
+  c.color.getHSL(hsl);
+  c.color.setHSL(hsl.h, hsl.s * 0.30, Math.min(hsl.l * 0.22, 0.10));
+  c.roughness = 1.0; c.metalness = 0;
+  if (c.emissive) c.emissive.set(0,0,0);
+  if (c.map) { c.map = c.map.clone(); c.map.needsUpdate = true; }
+  return c;
+}
+
+function processScene(gltfScene) {
+  gltfScene.traverse(n => {
+    if (!n.isMesh) return;
+    const mats = Array.isArray(n.material) ? n.material : [n.material];
+    const processed = mats.map(horrorMat);
+    n.material = processed.length === 1 ? processed[0] : processed;
+    n.castShadow = true; n.receiveShadow = false;
+  });
+}
+
+async function loadModels() {
+  const loader = new THREE.GLTFLoader();
+  const total  = Object.keys(MODEL_URLS).length;
+  let   done   = 0;
+  const bar    = document.getElementById('loading-bar');
+  const txt    = document.getElementById('loading-text');
+
+  function tick() {
+    done++;
+    bar.style.width = Math.round((done/total)*100) + '%';
+    txt.textContent = `${done} / ${total} risorse`;
+  }
+
+  const p = Object.entries(MODEL_URLS).map(([key,url]) =>
+    new Promise(res => {
+      loader.load(url, gltf => {
+        processScene(gltf.scene);
+        MODELS[key] = gltf.scene;
+        tick(); res();
+      }, undefined, () => { tick(); res(); });
+    })
+  );
+
+  // 9 second timeout — after that, use whatever loaded + fallbacks
+  await Promise.race([Promise.all(p), new Promise(r => setTimeout(r, 9000))]);
+}
+
+/* ═══════════════════════════════════════════
    SOUND
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 class SoundEngine {
   constructor() { this.ctx = null; }
   init() {
@@ -127,30 +255,30 @@ class SoundEngine {
     if (!AC) return;
     try { this.ctx = new AC(); this._drone(); } catch(e) {}
   }
-  resume() { if (this.ctx?.state === 'suspended') this.ctx.resume().catch(()=>{}); }
+  resume() { if (this.ctx?.state==='suspended') this.ctx.resume().catch(()=>{}); }
   _drone() {
-    const o1=this.ctx.createOscillator(), o2=this.ctx.createOscillator();
-    const g=this.ctx.createGain(), f=this.ctx.createBiquadFilter();
+    const o1=this.ctx.createOscillator(),o2=this.ctx.createOscillator();
+    const g=this.ctx.createGain(),f=this.ctx.createBiquadFilter();
     o1.type=o2.type='sawtooth'; o1.frequency.value=28; o2.frequency.value=30.5;
     g.gain.value=0.024; f.type='lowpass'; f.frequency.value=85;
     o1.connect(f); o2.connect(f); f.connect(g); g.connect(this.ctx.destination);
     o1.start(); o2.start();
   }
-  _shot(freq,type,dur,vol,end) {
+  _shot(f,t,d,v,e) {
     if (!this.ctx) return;
-    const o=this.ctx.createOscillator(), gn=this.ctx.createGain();
-    o.type=type; o.frequency.setValueAtTime(freq,this.ctx.currentTime);
-    if (end) o.frequency.exponentialRampToValueAtTime(end,this.ctx.currentTime+dur);
-    gn.gain.setValueAtTime(vol,this.ctx.currentTime);
-    gn.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+dur);
+    const o=this.ctx.createOscillator(),gn=this.ctx.createGain();
+    o.type=t; o.frequency.setValueAtTime(f,this.ctx.currentTime);
+    if (e) o.frequency.exponentialRampToValueAtTime(e,this.ctx.currentTime+d);
+    gn.gain.setValueAtTime(v,this.ctx.currentTime);
+    gn.gain.exponentialRampToValueAtTime(0.0001,this.ctx.currentTime+d);
     o.connect(gn); gn.connect(this.ctx.destination);
-    o.start(); o.stop(this.ctx.currentTime+dur);
+    o.start(); o.stop(this.ctx.currentTime+d);
   }
   footstep()    { this._shot(46,'triangle',0.08,0.10,7); }
   triggerStab() { [62,82,56].forEach((f,i)=>setTimeout(()=>this._shot(f,'sawtooth',0.55,0.14),i*75)); }
   doorCreak() {
     if (!this.ctx) return;
-    const o=this.ctx.createOscillator(), gn=this.ctx.createGain();
+    const o=this.ctx.createOscillator(),gn=this.ctx.createGain();
     o.type='sawtooth';
     o.frequency.setValueAtTime(290,this.ctx.currentTime);
     o.frequency.exponentialRampToValueAtTime(170,this.ctx.currentTime+1.3);
@@ -162,16 +290,14 @@ class SoundEngine {
 }
 const sfx = new SoundEngine();
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    UTILS
-═══════════════════════════════════════════════ */
-function h53(x,z,s) {
-  return Math.abs(Math.sin(x*127.1+z*311.7+s*74.5)*43758.5453)%1;
-}
+═══════════════════════════════════════════ */
+function h53(x,z,s) { return Math.abs(Math.sin(x*127.1+z*311.7+s*74.5)*43758.5453)%1; }
 
 function makeTextSprite(text) {
-  const lines=text.split('\n'), fs=20, lh=fs+10;
-  const W=512, H=lh*lines.length+20;
+  const lines=text.split('\n'),fs=20,lh=fs+10;
+  const W=512,H=lh*lines.length+20;
   const cv=document.createElement('canvas'); cv.width=W; cv.height=H;
   const cx=cv.getContext('2d');
   cx.clearRect(0,0,W,H);
@@ -197,266 +323,14 @@ function makeVoxelTex(palette) {
   cx.fillStyle='rgba(0,0,0,0.22)';
   for (let i=0;i<W;i+=8) { cx.fillRect(i,0,1,H); cx.fillRect(0,i,W,1); }
   const t=new THREE.CanvasTexture(cv);
-  t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter;
-  return t;
+  t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; return t;
 }
 
-/* ═══════════════════════════════════════════════
-   VOXEL GEOMETRY MERGER
-   boxes: array of [cx, cy, cz, w, h, d]
-   cx/cy/cz = CENTER of each box
-═══════════════════════════════════════════════ */
-function mergeBoxes(boxes) {
-  let totalVerts=0, totalIdx=0;
-  const geoms=boxes.map(([cx,cy,cz,w,h,d])=>{
-    const g=new THREE.BoxGeometry(w,h,d);
-    g.translate(cx,cy,cz);
-    totalVerts+=g.attributes.position.count;
-    totalIdx  +=g.index.array.length;
-    return g;
-  });
-  const pos=new Float32Array(totalVerts*3);
-  const nor=new Float32Array(totalVerts*3);
-  const uvs=new Float32Array(totalVerts*2);
-  const idx=new Uint32Array(totalIdx);
-  let vOff=0, iOff=0, idxBase=0;
-  geoms.forEach(g=>{
-    const p=g.attributes.position.array;
-    const n=g.attributes.normal.array;
-    const u=g.attributes.uv.array;
-    const ix=g.index.array;
-    pos.set(p,vOff*3); nor.set(n,vOff*3); uvs.set(u,vOff*2);
-    for (let i=0;i<ix.length;i++) idx[iOff+i]=ix[i]+idxBase;
-    idxBase+=g.attributes.position.count;
-    vOff   +=g.attributes.position.count;
-    iOff   +=ix.length;
-    g.dispose();
-  });
-  const m=new THREE.BufferGeometry();
-  m.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  m.setAttribute('normal',  new THREE.BufferAttribute(nor,3));
-  m.setAttribute('uv',      new THREE.BufferAttribute(uvs,2));
-  m.setIndex(new THREE.BufferAttribute(idx,1));
-  return m;
-}
-
-/* ═══════════════════════════════════════════════
-   VOXEL TREE DEFINITIONS
-   All coords are meters (1 voxel unit = 1m)
-═══════════════════════════════════════════════ */
-
-// 5 tree types, each = {trunk:[], foliage:[], trunkColor, foliageColor}
-const TREE_DEFS = {
-
-  // Type A: Horror Pine — tall narrow pyramid
-  pine: {
-    tc: 0x1a1009,
-    fc: 0x0e1a0a,
-    trunk: [
-      [0, 3.5, 0,  0.8, 7.0, 0.8],
-    ],
-    foliage: [
-      [0, 1.8, 0,  5.6, 0.9, 5.6],
-      [0, 2.7, 0,  4.6, 0.9, 4.6],
-      [0, 3.6, 0,  3.6, 0.9, 3.6],
-      [0, 4.5, 0,  2.8, 0.9, 2.8],
-      [0, 5.4, 0,  2.0, 0.9, 2.0],
-      [0, 6.3, 0,  1.2, 0.9, 1.2],
-      [0, 7.2, 0,  0.5, 0.9, 0.5],
-    ],
-  },
-
-  // Type B: Crooked Pine — same but canopy leans sideways
-  pineCrooked: {
-    tc: 0x1a1009,
-    fc: 0x101e0b,
-    trunk: [
-      [0.5, 3.5, 0,  0.8, 7.0, 0.8],
-    ],
-    foliage: [
-      [-0.3, 1.8, 0.2,  5.6, 0.9, 5.6],
-      [-0.7, 2.7, 0.3,  4.6, 0.9, 4.6],
-      [-1.2, 3.6, 0.2,  3.6, 0.9, 3.6],
-      [-1.6, 4.5, 0.1,  2.8, 0.9, 2.8],
-      [-2.0, 5.4, 0.0,  2.0, 0.9, 2.0],
-      [-2.3, 6.3, 0.0,  1.2, 0.9, 1.2],
-      [-2.5, 7.2, 0.0,  0.5, 0.9, 0.5],
-    ],
-  },
-
-  // Type C: Dead Oak — wide bare branches
-  deadOak: {
-    tc: 0x1c1510,
-    fc: null,
-    trunk: [
-      // Main trunk
-      [0,   3.0, 0,   1.2, 6.0, 1.2],
-      // Thick branch left
-      [-2.5, 4.2, 0,  4.4, 0.7, 0.7],
-      // Thick branch right
-      [ 2.3, 3.8, 0,  4.0, 0.7, 0.7],
-      // Sub-branch top-left
-      [-4.2, 5.8, 0,  0.6, 3.2, 0.6],
-      // Sub-branch top-right
-      [ 4.0, 5.3, 0,  0.6, 2.4, 0.6],
-      // Branch back
-      [ 0,   4.5, 1.8, 0.6, 0.6, 3.0],
-      // Stub back-top
-      [ 0,   6.2, 3.0, 0.6, 2.0, 0.6],
-      // A few broken crown stubs
-      [-0.5, 6.8, 0,  0.7, 1.6, 0.7],
-      [ 0.8, 6.5, 0,  0.6, 1.2, 0.6],
-    ],
-  },
-
-  // Type D: Tall Spire — very tall bare pole with minimal stubs
-  tallSpire: {
-    tc: 0x181209,
-    fc: null,
-    trunk: [
-      // Main pole — very tall
-      [0, 5.0,  0,   0.65, 10.0, 0.65],
-      // Stub branches
-      [-1.0, 3.0,  0,  1.7, 0.5, 0.5],
-      [ 0.8, 5.0,  0,  1.5, 0.5, 0.5],
-      [-0.7, 7.0,  0.4, 1.2, 0.5, 0.5],
-      [ 0.5, 8.5, -0.3, 0.9, 0.5, 0.5],
-    ],
-  },
-
-  // Type E: Stump — short dead stump with broken bits
-  stump: {
-    tc: 0x1c1510,
-    fc: null,
-    trunk: [
-      // Base stump
-      [0,   1.1, 0,  1.8, 2.2, 1.8],
-      // Broken top spike left
-      [ 0.5, 2.8, 0,  0.65, 1.5, 0.65],
-      // Broken top spike right
-      [-0.4, 2.5, 0.3, 0.55, 1.0, 0.55],
-      // Root buttress front
-      [ 0.8, 0.2, 0.7, 0.5, 0.4, 0.8],
-      // Root buttress back
-      [-0.7, 0.2,-0.8, 0.5, 0.4, 0.8],
-    ],
-  },
-
-  // Type F: Wide Dead Oak variant — denser branching
-  deadOakWide: {
-    tc: 0x1e1612,
-    fc: null,
-    trunk: [
-      [0,   2.5, 0,  1.4, 5.0, 1.4],
-      // Horizontal branches at different heights
-      [-3.0, 3.2, 0,  5.6, 0.7, 0.7],
-      [ 2.8, 2.8, 0,  5.0, 0.7, 0.7],
-      [ 0,   3.0, -2.6, 0.7, 0.7, 4.8],
-      // Secondary uprights from branches
-      [-5.4, 4.8, 0,  0.6, 3.2, 0.6],
-      [ 5.0, 4.4, 0,  0.6, 2.8, 0.6],
-      [ 0,   4.6,-4.8, 0.6, 2.6, 0.6],
-      // Crown
-      [-1.0, 5.2, 0,  0.7, 1.8, 0.7],
-      [ 1.2, 4.9, 0.5, 0.6, 1.4, 0.6],
-    ],
-  },
-};
-
-// Weight table for tree type selection
-const TREE_WEIGHTS = [
-  { key:'pine',        w:0.28 },
-  { key:'pineCrooked', w:0.22 },
-  { key:'deadOak',     w:0.16 },
-  { key:'tallSpire',   w:0.14 },
-  { key:'deadOakWide', w:0.12 },
-  { key:'stump',       w:0.08 },
-];
-
-function pickTreeType(t) {
-  let c=0;
-  for (const e of TREE_WEIGHTS) { c+=e.w; if (t<c) return e.key; }
-  return 'pine';
-}
-
-// Build prototype meshes once — shared across all clones
-const TREE_PROTOTYPES = {};
-function buildTreePrototypes() {
-  Object.entries(TREE_DEFS).forEach(([key,def])=>{
-    const grp = new THREE.Group();
-    const tMat = new THREE.MeshStandardMaterial({color:def.tc, roughness:1, metalness:0});
-
-    // Trunk / dead skeleton
-    const tGeo = mergeBoxes(def.trunk);
-    const tMesh = new THREE.Mesh(tGeo, tMat);
-    tMesh.castShadow = true;
-    grp.add(tMesh);
-
-    // Foliage (pines only)
-    if (def.foliage) {
-      const fMat  = new THREE.MeshStandardMaterial({color:def.fc, roughness:1, metalness:0});
-      const fGeo  = mergeBoxes(def.foliage);
-      const fMesh = new THREE.Mesh(fGeo, fMat);
-      fMesh.castShadow = true;
-      grp.add(fMesh);
-    }
-
-    TREE_PROTOTYPES[key] = grp;
-  });
-}
-
-/* ═══════════════════════════════════════════════
-   VOXEL VEGETATION DEFINITIONS
-═══════════════════════════════════════════════ */
-
-// Grass tuft — several thin slabs per instance (merged single mesh)
-function makeGrassGeo() {
-  return mergeBoxes([
-    // Main blades
-    [ 0.00, 0.22, 0.00,  0.10, 0.44, 0.55],
-    [ 0.28, 0.18,-0.12,  0.08, 0.36, 0.40],
-    [-0.22, 0.15, 0.18,  0.08, 0.30, 0.38],
-    [ 0.10, 0.12,-0.28,  0.06, 0.24, 0.30],
-    [-0.30, 0.10, 0.00,  0.06, 0.20, 0.25],
-  ]);
-}
-
-// Weed/stem — tall thin spike
-function makeWeedGeo() {
-  return mergeBoxes([
-    [ 0.00, 0.32, 0.00,  0.08, 0.64, 0.08],
-    [ 0.14, 0.20, 0.05,  0.06, 0.40, 0.06],
-    [-0.12, 0.18,-0.04,  0.06, 0.36, 0.06],
-    [ 0.00, 0.60, 0.00,  0.14, 0.10, 0.14], // seed head
-  ]);
-}
-
-// Low bush — rounded voxel cluster
-function makeBushGeo() {
-  return mergeBoxes([
-    [ 0.0, 0.28, 0.0,   0.80, 0.56, 0.80],
-    [ 0.4, 0.22,-0.2,   0.48, 0.44, 0.48],
-    [-0.4, 0.20, 0.3,   0.44, 0.40, 0.44],
-    [ 0.0, 0.52, 0.0,   0.48, 0.32, 0.48], // top layer
-  ]);
-}
-
-// Fallen log — horizontal cylinder-ish
-function makeFallenLogGeo() {
-  return mergeBoxes([
-    [ 0.0, 0.30, 0.0,   4.50, 0.60, 0.60],
-    [ 1.6, 0.26, 0.0,   0.50, 0.52, 0.52],
-    [-1.6, 0.24, 0.2,   0.50, 0.48, 0.50],
-    [ 2.1, 0.22, 0.0,   0.40, 0.44, 0.44],
-    [-2.1, 0.20,-0.1,   0.40, 0.40, 0.42],
-  ]);
-}
-
-/* ═══════════════════════════════════════════════
-   POLY HAVEN TEXTURES (CC0, async, progressive)
-═══════════════════════════════════════════════ */
-const TL = new THREE.TextureLoader();
-const PH = 'https://dl.polyhaven.org/file/ph-assets/Textures';
+/* ═══════════════════════════════════════════
+   POLY HAVEN TEXTURES (CC0)
+═══════════════════════════════════════════ */
+const TL=new THREE.TextureLoader();
+const PH='https://dl.polyhaven.org/file/ph-assets/Textures';
 function phTex(path,rS,rT,isNorm) {
   const t=TL.load(PH+path,tex=>{
     tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
@@ -467,45 +341,38 @@ function phTex(path,rS,rT,isNorm) {
   t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rS||1,rT||rS||1);
   return t;
 }
-const TEX = {
-  mudD: phTex('/jpg/1k/brown_mud_03/brown_mud_03_diff_1k.jpg',      8,8),
-  mudN: phTex('/png/1k/brown_mud_03/brown_mud_03_nor_gl_1k.png',    8,8,true),
-  mudR: phTex('/jpg/1k/brown_mud_03/brown_mud_03_rough_1k.jpg',     8,8),
-  trkD: phTex('/jpg/1k/muddy_tracks/muddy_tracks_diff_1k.jpg',      4,10),
-  trkN: phTex('/png/1k/muddy_tracks/muddy_tracks_nor_gl_1k.png',    4,10,true),
-  brkD: phTex('/jpg/1k/brick_wall_02/brick_wall_02_diff_1k.jpg',    2,4),
-  brkN: phTex('/png/1k/brick_wall_02/brick_wall_02_nor_gl_1k.png',  2,4,true),
-  cblD: phTex('/jpg/1k/cobblestone_floor_02/cobblestone_floor_02_diff_1k.jpg',3,3),
-  cblN: phTex('/png/1k/cobblestone_floor_02/cobblestone_floor_02_nor_gl_1k.png',3,3,true),
-  wdD:  phTex('/jpg/1k/wood_planks_grey/wood_planks_grey_diff_1k.jpg',1,2),
-  wdN:  phTex('/png/1k/wood_planks_grey/wood_planks_grey_nor_gl_1k.png',1,2,true),
+const TEX={
+  mudD:phTex('/jpg/1k/brown_mud_03/brown_mud_03_diff_1k.jpg',8,8),
+  mudN:phTex('/png/1k/brown_mud_03/brown_mud_03_nor_gl_1k.png',8,8,true),
+  mudR:phTex('/jpg/1k/brown_mud_03/brown_mud_03_rough_1k.jpg',8,8),
+  trkD:phTex('/jpg/1k/muddy_tracks/muddy_tracks_diff_1k.jpg',4,10),
+  trkN:phTex('/png/1k/muddy_tracks/muddy_tracks_nor_gl_1k.png',4,10,true),
+  brkD:phTex('/jpg/1k/brick_wall_02/brick_wall_02_diff_1k.jpg',2,4),
+  brkN:phTex('/png/1k/brick_wall_02/brick_wall_02_nor_gl_1k.png',2,4,true),
+  cblD:phTex('/jpg/1k/cobblestone_floor_02/cobblestone_floor_02_diff_1k.jpg',3,3),
+  cblN:phTex('/png/1k/cobblestone_floor_02/cobblestone_floor_02_nor_gl_1k.png',3,3,true),
+  wdD: phTex('/jpg/1k/wood_planks_grey/wood_planks_grey_diff_1k.jpg',1,2),
+  wdN: phTex('/png/1k/wood_planks_grey/wood_planks_grey_nor_gl_1k.png',1,2,true),
 };
 
-/* ═══════════════════════════════════════════════
-   GLOBALS
-═══════════════════════════════════════════════ */
-const CHURCH_Z = -42;
-const clock    = new THREE.Clock();
-let scene, camera, renderer, flashlight, bodyGroup, groundMesh;
-let phase = 'menu', lastStep = 0, flashBase = 4.5;
-const treeGroups = [], walls = [];
+/* ═══════════════════════════════════════════
+   SCENE GLOBALS
+═══════════════════════════════════════════ */
+const CHURCH_Z=-42;
+const clock=new THREE.Clock();
+let scene,camera,renderer,composer,flashlight,bodyGroup,groundMesh;
+let phase='loading', lastStep=0, flashBase=4.2;
+const treeGroups=[], walls=[];
 
-const player = {
-  pos: new THREE.Vector3(0,1.6,35),
-  rot: new THREE.Euler(0,Math.PI,0,'YXZ'),
+const player={
+  pos:new THREE.Vector3(0,1.6,35),
+  rot:new THREE.Euler(0,Math.PI,0,'YXZ'),
   speed:2.4, radius:0.44, bob:0,
 };
-const keys = {};
-const joy = {
-  move:{id:null,sx:0,sy:0,dx:0,dy:0},
-  look:{id:null,sx:0,sy:0},
-};
-const trigger = {
-  entered:false, graffitiDone:false,
-  entryYaw:0, turned180:false, mudBreathing:false,
-};
+const keys={}, joy={move:{id:null,sx:0,sy:0,dx:0,dy:0},look:{id:null,sx:0,sy:0}};
+const trigger={entered:false,graffitiDone:false,entryYaw:0,turned180:false,mudBreathing:false};
 
-const TREE_POS = [
+const TREE_POS=[
   [-8,-6],[-10,-8.5],[-9.5,-12],[-7.5,-10],[-11.5,-11.5],
   [-13,-7.5],[-14.5,-13],[-15,-9],[-12,-16.5],[0,-10.5],
   [5,-9],[7.5,-14],[6,-20.5],[8.5,-8.5],[9,-4.5],
@@ -516,30 +383,25 @@ const TREE_POS = [
   [-20,-38],[13,-40],[-8,-43],[15,-34],[-22,-12],
   [20,-20],[-17,-30],[11,-45],[-13,-47],[8,-50],
 ];
-
-const SIGN_TEXTS = [
+const SIGN_TEXTS=[
   'LA TERRA NON\nDIMENTICA IL FANGO',
   'SANTA SPORCIZIA\nPREGA PER I NOSTRI\nPECCATI MARCI',
   'CHI ENTRA ASCIUTTO\nESCE LIQUIDO',
 ];
-
-const DOOR_POS = new THREE.Vector3(0,1.6,CHURCH_Z+0.6);
-const TRIG_BOX = new THREE.Box3(
+const DOOR_POS=new THREE.Vector3(0,1.6,CHURCH_Z+0.6);
+const TRIG_BOX=new THREE.Box3(
   new THREE.Vector3(-2.6,0,CHURCH_Z-0.6),
   new THREE.Vector3(2.6,3,CHURCH_Z+1.2)
 );
 
-/* ═══════════════════════════════════════════════
-   VOXEL BODY (first-person)
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   VOXEL BODY
+═══════════════════════════════════════════ */
 function buildBodyMesh() {
-  const ragMat  = new THREE.MeshLambertMaterial({map:makeVoxelTex([[42,30,20],[50,38,26],[35,25,16],[28,20,12],[58,44,30],[22,15,9]])});
-  const bootMat = new THREE.MeshLambertMaterial({map:makeVoxelTex([[22,15,9],[28,20,12],[18,12,7],[15,10,5],[32,22,14],[12,8,4]])});
-  const grp = new THREE.Group();
-  function vox(w,h,d,x,y,z,mat) {
-    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);
-    m.position.set(x,y,z); grp.add(m);
-  }
+  const ragMat =new THREE.MeshLambertMaterial({map:makeVoxelTex([[42,30,20],[50,38,26],[35,25,16],[28,20,12],[58,44,30],[22,15,9]])});
+  const bootMat=new THREE.MeshLambertMaterial({map:makeVoxelTex([[22,15,9],[28,20,12],[18,12,7],[15,10,5],[32,22,14],[12,8,4]])});
+  const grp=new THREE.Group();
+  function vox(w,h,d,x,y,z,m){const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);mesh.position.set(x,y,z);grp.add(mesh);}
   vox(0.40,0.55,0.22, 0,   -0.72,0.22,ragMat);
   vox(0.12,0.52,0.12,-0.28,-0.72,0.21,ragMat);
   vox(0.12,0.52,0.12, 0.28,-0.72,0.21,ragMat);
@@ -549,63 +411,78 @@ function buildBodyMesh() {
   grp.visible=false; return grp;
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    INIT
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function init() {
   const canvas=document.getElementById('c');
   scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x0e0e0a);
-  scene.fog=new THREE.FogExp2(0x1a1a14,0.18);
+  scene.background=new THREE.Color(0x080c06);
+  scene.fog=new THREE.FogExp2(0x101408,0.18);  // slightly green horror fog
 
   camera=new THREE.PerspectiveCamera(72,innerWidth/innerHeight,0.04,80);
   camera.rotation.order='YXZ';
 
-  renderer=new THREE.WebGLRenderer({canvas,antialias:false});
+  renderer=new THREE.WebGLRenderer({canvas,antialias:false,powerPreference:'high-performance'});
   renderer.setSize(innerWidth,innerHeight);
-  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.PCFShadowMap;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;  // soft shadows
   renderer.outputEncoding=THREE.sRGBEncoding;
   renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=0.75;
+  renderer.toneMappingExposure=0.7;
 
-  scene.add(new THREE.AmbientLight(0x0c1008,0.18));
-  const ptL=new THREE.PointLight(0xb8c860,1.4,22);
+  // Ambient — nearly nothing
+  scene.add(new THREE.AmbientLight(0x091208,0.15));
+
+  // Church eerie green glow
+  const ptL=new THREE.PointLight(0x90c840,1.6,24);
   ptL.position.set(0,4.5,CHURCH_Z+1.5);
   scene.add(ptL); scene.userData.ptLight=ptL;
 
-  flashlight=new THREE.SpotLight(0xffe8c0,flashBase,22,Math.PI/8,0.32,1.3);
+  // Flashlight
+  flashlight=new THREE.SpotLight(0xffe8c0,flashBase,22,Math.PI/8,0.30,1.3);
   flashlight.castShadow=true;
   flashlight.shadow.mapSize.set(512,512);
   flashlight.shadow.camera.near=0.4;
   flashlight.shadow.camera.far=22;
   scene.add(flashlight); scene.add(flashlight.target);
 
+  // Post-processing: UnrealBloom
+  composer=new THREE.EffectComposer(renderer);
+  composer.addPass(new THREE.RenderPass(scene,camera));
+  const bloom=new THREE.UnrealBloomPass(
+    new THREE.Vector2(innerWidth,innerHeight),
+    0.55, // strength — subtle but effective
+    0.6,  // radius
+    0.88  // threshold — only bright lights bloom
+  );
+  composer.addPass(bloom);
+
   camera.position.set(0,2.2,8);
   camera.rotation.set(-0.20,0,0);
-
   bodyGroup=buildBodyMesh(); scene.add(bodyGroup);
   setupControls();
+
   window.addEventListener('resize',()=>{
     camera.aspect=innerWidth/innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(innerWidth,innerHeight);
+    composer.setSize(innerWidth,innerHeight);
+    bloom.resolution.set(innerWidth,innerHeight);
   });
   clock.start();
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    ENVIRONMENT
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function buildEnvironment() {
-  buildTreePrototypes(); // build voxel tree prototypes
-
   // Ground — mud texture
   const gMat=new THREE.MeshStandardMaterial({
-    color:0x1a1008, roughness:1,
-    map:TEX.mudD, normalMap:TEX.mudN, roughnessMap:TEX.mudR,
-    normalScale:new THREE.Vector2(1.2,1.2),
+    color:0x1a1008,roughness:1,
+    map:TEX.mudD,normalMap:TEX.mudN,roughnessMap:TEX.mudR,
+    normalScale:new THREE.Vector2(1.5,1.5),
   });
   groundMesh=new THREE.Mesh(new THREE.PlaneGeometry(120,120,60,60),gMat);
   groundMesh.rotation.x=-Math.PI/2; groundMesh.position.y=-0.02;
@@ -614,14 +491,14 @@ function buildEnvironment() {
   buildPath();
   buildPebbles();
   buildPuddles();
-  buildTrees();       // voxel trees
-  buildVegetation();  // voxel grass / weeds / bushes
-  buildFallenLogs();  // voxel fallen logs
+  buildTrees();
+  buildVegetation();
+  buildFallenLogs();
   buildFencePosts();
   buildGraves();
   buildChurch();
+  buildFireflies();
 
-  // Field bounds
   const HF=60;
   [[0,-HF-0.5,121,0.2],[0,HF+0.5,121,0.2],[-HF-0.5,0,0.2,121],[HF+0.5,0,0.2,121]]
   .forEach(([bx,bz,bw,bd])=>walls.push(new THREE.Box3(
@@ -630,42 +507,31 @@ function buildEnvironment() {
   )));
 }
 
-/* ─── PATH ────────────────────────────────── */
 function buildPath() {
-  const mat=new THREE.MeshStandardMaterial({
-    color:0x201408,roughness:0.95,
-    map:TEX.trkD,normalMap:TEX.trkN,
-    normalScale:new THREE.Vector2(0.8,0.8),
-  });
+  const mat=new THREE.MeshStandardMaterial({color:0x201408,roughness:0.95,map:TEX.trkD,normalMap:TEX.trkN,normalScale:new THREE.Vector2(0.9,0.9)});
   const wp=[[2,35],[1.5,28],[0.8,20],[0.2,12],[-0.2,4],[0,-2],[0,-10],[0,-20],[0,-30],[0,-38]];
   for (let i=0;i<wp.length-1;i++) {
-    const [ax,az]=wp[i],[bx,bz]=wp[i+1];
-    const len=Math.hypot(bx-ax,bz-az);
+    const [ax,az]=wp[i],[bx,bz]=wp[i+1],len=Math.hypot(bx-ax,bz-az);
     const seg=new THREE.Mesh(new THREE.PlaneGeometry(2.6,len),mat);
-    seg.rotation.x=-Math.PI/2;
-    seg.position.set((ax+bx)/2,0.005,(az+bz)/2);
-    seg.rotation.z=-Math.atan2(bx-ax,bz-az);
-    seg.receiveShadow=true; scene.add(seg);
+    seg.rotation.x=-Math.PI/2; seg.position.set((ax+bx)/2,0.005,(az+bz)/2);
+    seg.rotation.z=-Math.atan2(bx-ax,bz-az); seg.receiveShadow=true; scene.add(seg);
   }
 }
 
-/* ─── PEBBLES ────────────────────────────── */
 function buildPebbles() {
   const M4=new THREE.Matrix4(),VP=new THREE.Vector3(),VQ=new THREE.Quaternion(),VS=new THREE.Vector3();
-  function inst(geo,mat,n,yBase,sMin,sMax,syFactor) {
+  function inst(geo,mat,n,y,sMin,sMax,sy) {
     const im=new THREE.InstancedMesh(geo,mat,n);
     for (let i=0;i<n;i++) {
-      VP.set((Math.random()-0.5)*114,yBase,(Math.random()-0.5)*114);
+      VP.set((Math.random()-0.5)*114,y,(Math.random()-0.5)*114);
       VQ.setFromEuler(new THREE.Euler(Math.random()*Math.PI,Math.random()*Math.PI,Math.random()*Math.PI));
-      const s=sMin+Math.random()*(sMax-sMin); VS.set(s,s*(syFactor||0.55),s);
+      const s=sMin+Math.random()*(sMax-sMin); VS.set(s,s*(sy||0.55),s);
       im.setMatrixAt(i,M4.compose(VP,VQ,VS));
     }
     im.instanceMatrix.needsUpdate=true; scene.add(im);
   }
   inst(new THREE.DodecahedronGeometry(0.04,0),new THREE.MeshStandardMaterial({color:0x2c2418,roughness:1}),3000,0.02,0.3,0.9);
   inst(new THREE.DodecahedronGeometry(0.12,0),new THREE.MeshStandardMaterial({color:0x282018,roughness:1}),500,0.05,0.4,1.2);
-
-  // Rock clusters
   const rMat=new THREE.MeshStandardMaterial({color:0x242018,roughness:0.95});
   const rGeo=new THREE.DodecahedronGeometry(1,0);
   [[-3.5,-6.5,0.62],[2.5,-11.5,0.50],[-5.5,-14,0.92],[4,-8,0.55],[-9,-19,0.75],
@@ -673,16 +539,14 @@ function buildPebbles() {
    [0.5,-40,0.38],[5.5,-36,0.45],[-11,-12,0.66],[7,-16,0.38],[-3,-45,0.52],
   ].forEach(([rx,rz,rs])=>{
     const r=new THREE.Mesh(rGeo,rMat);
-    r.scale.set(rs*1.2,rs*0.62,rs);
-    r.position.set(rx,rs*0.36,rz);
+    r.scale.set(rs*1.2,rs*0.62,rs); r.position.set(rx,rs*0.36,rz);
     r.rotation.set(Math.random(),Math.random()*Math.PI,Math.random());
     r.castShadow=true; r.receiveShadow=true; scene.add(r);
   });
 }
 
-/* ─── PUDDLES ────────────────────────────── */
 function buildPuddles() {
-  const mat=new THREE.MeshStandardMaterial({color:0x0a1018,metalness:0.82,roughness:0.06,transparent:true,opacity:0.87});
+  const mat=new THREE.MeshStandardMaterial({color:0x080e0a,metalness:0.85,roughness:0.04,transparent:true,opacity:0.88});
   [[3,-8,0.7],[-5,-12,1.1],[1,-20,0.5],[-8,-25,0.9],[4,-30,0.6],
    [-2,-16,0.45],[7,-22,0.8],[-4,-35,0.55],[2,-41,1.2],[-6,-38,0.7],
    [5,-44,0.4],[0,-27,0.65],[-3,-4,0.35],[6,-5,0.55],[-2,-47,0.9],
@@ -692,126 +556,137 @@ function buildPuddles() {
   });
 }
 
-/* ─── VOXEL TREES ────────────────────────── */
+/* ─── GLTF TREES ─────────────────────────── */
 function buildTrees() {
+  // Scale table per type
+  const SCALES={
+    pine:[4.5,2.0], pineC:[4.0,2.0], trunk:[2.5,1.5], trunkL:[2.0,1.0],
+    treeH1:[6,2], treeH2:[6,2], treeH3:[6,2],
+    treeM1:[5,2], treeM2:[5,2], treeM3:[5,2],
+    treeL1:[4,1.5], treeL2:[4,1.5], treeL3:[4,1.5], treeL4:[4,1.5],
+  };
+
   TREE_POS.forEach(([tx,tz],idx)=>{
-    const typeKey=pickTreeType(h53(tx,tz,7));
-    const proto=TREE_PROTOTYPES[typeKey];
-
-    const grp=new THREE.Group();
-    const clone=proto.clone(true);
-
-    // Random scale with h53 for determinism
-    const scaleRange = typeKey==='stump' ? [0.8,1.2] :
-                       typeKey==='tallSpire' ? [0.7,1.0] : [0.85,1.15];
-    const s=scaleRange[0]+h53(tx,tz,9)*(scaleRange[1]-scaleRange[0]);
-    clone.scale.set(s,s,s);
-    grp.add(clone);
+    const typeKey = pickTree(h53(tx,tz,7));
+    const mdl     = MODELS[typeKey];
+    const grp     = new THREE.Group();
     grp.position.set(tx,0,tz);
-    grp.rotation.y=h53(tx,tz,3)*Math.PI*2;
+    grp.rotation.y = h53(tx,tz,3)*Math.PI*2;
+    grp.userData.baseRotZ = (h53(tx,tz,11)-0.5)*0.07;
+    grp.rotation.z = grp.userData.baseRotZ;
 
-    // Slight tilt for organic feel (not for stumps)
-    if (typeKey!=='stump') {
-      grp.rotation.z=(h53(tx,tz,11)-0.5)*0.08;
-      grp.rotation.x=(h53(tx,tz,12)-0.5)*0.05;
+    if (mdl) {
+      const clone = mdl.clone(true);
+      const sc    = SCALES[typeKey] || [5,2];
+      const s     = sc[0] + h53(tx,tz,9)*sc[1];
+      clone.scale.set(s,s,s);
+      grp.add(clone);
+    } else {
+      grp.add(makeDeadTreeFallback(0,0,4+h53(tx,tz,1)*3,0.7+h53(tx,tz,2)*0.5));
     }
 
     scene.add(grp); treeGroups.push(grp);
-    const r=typeKey==='deadOakWide'?1.2:typeKey==='stump'?0.9:0.75;
     walls.push(new THREE.Box3(
-      new THREE.Vector3(tx-r,0,tz-r),
-      new THREE.Vector3(tx+r,10,tz+r)
+      new THREE.Vector3(tx-0.7,0,tz-0.7),
+      new THREE.Vector3(tx+0.7,10,tz+0.7)
     ));
 
-    // Signs on every 5th tree
     if (idx%5===0) {
       const sp=makeTextSprite(SIGN_TEXTS[Math.floor(idx/5)%SIGN_TEXTS.length]);
-      const treeH=typeKey==='stump'?1.8:typeKey==='tallSpire'?5.0:3.5;
-      sp.position.set(tx+0.5,treeH,tz+0.1); scene.add(sp);
+      sp.position.set(tx+0.5,3.5,tz+0.1); scene.add(sp);
     }
   });
 }
 
-/* ─── VOXEL VEGETATION ───────────────────── */
+/* ─── GLTF VEGETATION ────────────────────── */
 function buildVegetation() {
   const M4=new THREE.Matrix4(),VP=new THREE.Vector3(),VQ=new THREE.Quaternion(),VS=new THREE.Vector3();
 
-  // Grass tufts — InstancedMesh
-  const gGeo=makeGrassGeo();
-  const gMat=new THREE.MeshStandardMaterial({color:0x111808,roughness:1,metalness:0});
-  const grassInst=new THREE.InstancedMesh(gGeo,gMat,2800);
-  for (let i=0;i<2800;i++) {
-    const x=(Math.random()-0.5)*114, z=(Math.random()-0.5)*114;
-    const s=0.7+Math.random()*0.9;
-    VP.set(x,0,z);
-    VQ.setFromEuler(new THREE.Euler(0,Math.random()*Math.PI*2,0));
-    VS.set(s,s*(0.8+Math.random()*0.5),s);
-    grassInst.setMatrixAt(i,M4.compose(VP,VQ,VS));
+  // Helper: extract first mesh from GLTF scene for InstancedMesh
+  function extractMesh(key) {
+    let out=null;
+    MODELS[key]?.traverse(n=>{ if(n.isMesh&&!out) out=n; });
+    return out;
   }
-  grassInst.instanceMatrix.needsUpdate=true; scene.add(grassInst);
 
-  // Dried weeds — InstancedMesh (brighter, dead-grass color)
-  const wGeo=makeWeedGeo();
-  const wMat=new THREE.MeshStandardMaterial({color:0x1c1a0c,roughness:1,metalness:0});
-  const weedInst=new THREE.InstancedMesh(wGeo,wMat,1400);
-  for (let i=0;i<1400;i++) {
-    const x=(Math.random()-0.5)*114, z=(Math.random()-0.5)*114;
-    const s=0.6+Math.random()*1.2;
-    VP.set(x,0,z);
-    VQ.setFromEuler(new THREE.Euler((Math.random()-0.5)*0.2,Math.random()*Math.PI*2,0));
-    VS.set(s,s,s);
-    weedInst.setMatrixAt(i,M4.compose(VP,VQ,VS));
-  }
-  weedInst.instanceMatrix.needsUpdate=true; scene.add(weedInst);
+  // Grass — instanced, 3 types
+  ['grass1','grass2','grass3'].forEach((key,ki)=>{
+    const src=extractMesh(key);
+    if (!src) return;
+    const count=900;
+    const im=new THREE.InstancedMesh(src.geometry,src.material,count);
+    im.instanceMatrix.needsUpdate=false;
+    for (let i=0;i<count;i++) {
+      VP.set((Math.random()-0.5)*112,0,(Math.random()-0.5)*112);
+      VQ.setFromEuler(new THREE.Euler(0,Math.random()*Math.PI*2,0));
+      const s=1.5+Math.random()*1.5; VS.set(s,s,s);
+      im.setMatrixAt(i,M4.compose(VP,VQ,VS));
+    }
+    im.instanceMatrix.needsUpdate=true; scene.add(im);
+  });
 
-  // Low bushes — scattered clusters
-  const bGeo=makeBushGeo();
-  const bMat=new THREE.MeshStandardMaterial({color:0x141a0a,roughness:1,metalness:0});
-  const bushInst=new THREE.InstancedMesh(bGeo,bMat,320);
-  for (let i=0;i<320;i++) {
-    const x=(Math.random()-0.5)*114, z=(Math.random()-0.5)*114;
-    const s=0.5+Math.random()*1.0;
-    VP.set(x,0,z);
-    VQ.setFromEuler(new THREE.Euler(0,Math.random()*Math.PI*2,0));
-    VS.set(s,s*(0.6+Math.random()*0.4),s);
-    bushInst.setMatrixAt(i,M4.compose(VP,VQ,VS));
-  }
-  bushInst.instanceMatrix.needsUpdate=true; scene.add(bushInst);
+  // Bushes — instanced
+  ['bush1','bush2'].forEach(key=>{
+    const src=extractMesh(key);
+    if (!src) return;
+    const count=180;
+    const im=new THREE.InstancedMesh(src.geometry,src.material,count);
+    for (let i=0;i<count;i++) {
+      VP.set((Math.random()-0.5)*112,0,(Math.random()-0.5)*112);
+      VQ.setFromEuler(new THREE.Euler(0,Math.random()*Math.PI*2,0));
+      const s=2+Math.random()*2; VS.set(s,s*(0.7+Math.random()*0.4),s);
+      im.setMatrixAt(i,M4.compose(VP,VQ,VS));
+    }
+    im.instanceMatrix.needsUpdate=true; scene.add(im);
+  });
+
+  // Reeds — instanced near puddles
+  ['reed1','reed2'].forEach(key=>{
+    const src=extractMesh(key);
+    if (!src) return;
+    const reedPos=[[3,-8],[-5,-12],[-8,-25],[2,-41],[7,-22]];
+    const count=reedPos.length*4;
+    const im=new THREE.InstancedMesh(src.geometry,src.material,count);
+    let idx=0;
+    reedPos.forEach(([rx,rz])=>{
+      for (let j=0;j<4;j++) {
+        VP.set(rx+(Math.random()-0.5)*1.5,0,rz+(Math.random()-0.5)*1.5);
+        VQ.setFromEuler(new THREE.Euler(0,Math.random()*Math.PI*2,0));
+        const s=1.5+Math.random(); VS.set(s,s,s);
+        im.setMatrixAt(idx++,M4.compose(VP,VQ,VS));
+      }
+    });
+    im.instanceMatrix.needsUpdate=true; scene.add(im);
+  });
 }
 
 /* ─── FALLEN LOGS ────────────────────────── */
 function buildFallenLogs() {
-  const logGeo=makeFallenLogGeo();
-  const logMat=new THREE.MeshStandardMaterial({color:0x1a1109,roughness:1,metalness:0});
-  [
-    [3,-11,0.4],[-7,-19,1.2],[5,-27,0.8],[-4,-33,2.0],[2,-38,0.6],
-    [6,-44,1.5],[-3,-17,0.3],[9,-50,1.8],[-12,-22,0.9],[14,-36,0.5],
+  const logKeys=['pineFall','trunkL','trunk'];
+  [[3,-11,0.4],[-7,-19,1.2],[5,-27,0.8],[-4,-33,2.0],[2,-38,0.6],
+   [6,-44,1.5],[-3,-17,0.3],[9,-50,1.8],[-12,-22,0.9],[14,-36,0.5]
   ].forEach(([x,z,ry])=>{
-    const log=new THREE.Mesh(logGeo,logMat);
-    const s=0.9+Math.random()*0.5;
-    log.scale.set(s,s,s);
-    log.position.set(x,0,z);
-    log.rotation.y=ry;
-    log.castShadow=true; log.receiveShadow=true;
-    scene.add(log);
+    const key=logKeys[Math.floor(Math.abs(Math.sin(x+z)*100))%logKeys.length];
+    const mdl=MODELS[key];
+    if (!mdl) return;
+    const grp=new THREE.Group(); grp.position.set(x,0,z); grp.rotation.y=ry;
+    const clone=mdl.clone(true); const s=3.5+Math.random()*1.5;
+    clone.scale.set(s,s,s); grp.add(clone); scene.add(grp);
   });
 }
 
-/* ─── FENCE POSTS ───────────────────────── */
 function buildFencePosts() {
   const mat=new THREE.MeshStandardMaterial({color:0x201408,roughness:1});
   const geo=new THREE.CylinderGeometry(0.035,0.05,1.2,6);
   [[-1.5,-2],[1.4,-5],[-1.3,-9],[1.5,-13],[-1.4,-17],
-   [1.3,-21],[-1.5,-25],[1.4,-29],[-1.3,-33],[1.5,-37],
-  ].forEach(([px,pz])=>{
+   [1.3,-21],[-1.5,-25],[1.4,-29],[-1.3,-33],[1.5,-37]]
+  .forEach(([px,pz])=>{
     const p=new THREE.Mesh(geo,mat);
-    p.position.set(px,0.6,pz);
-    p.rotation.z=(Math.random()-0.5)*0.18;
+    p.position.set(px,0.6,pz); p.rotation.z=(Math.random()-0.5)*0.18;
     p.castShadow=true; scene.add(p);
   });
 }
 
-/* ─── GRAVES ─────────────────────────────── */
 function buildGraves() {
   const mat=new THREE.MeshStandardMaterial({color:0x1e1c18,roughness:0.95});
   [[-3,CHURCH_Z-2.5,0.1],[2.5,CHURCH_Z-3,-0.05],
@@ -819,16 +694,47 @@ function buildGraves() {
    [-4.5,CHURCH_Z-3.5,0.06],[0.8,CHURCH_Z-6,0.04],
   ].forEach(([gx,gz,tilt])=>{
     const st=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.55,0.08),mat);
-    st.position.set(gx,0.275,gz); st.rotation.z=tilt;
-    st.rotation.y=(Math.random()-0.5)*0.4;
+    st.position.set(gx,0.275,gz); st.rotation.z=tilt; st.rotation.y=(Math.random()-0.5)*0.4;
     st.castShadow=true; st.receiveShadow=true; scene.add(st);
   });
+}
+
+/* ─── FIREFLY PARTICLES ──────────────────── */
+function buildFireflies() {
+  const count=220;
+  const positions=new Float32Array(count*3);
+  const seeds=new Float32Array(count);  // per-particle random offset
+  for (let i=0;i<count;i++) {
+    const t=i/count;
+    // Cluster toward path and church
+    if (t<0.5) {
+      positions[i*3]  =(Math.random()-0.5)*20;
+      positions[i*3+1]=0.3+Math.random()*2.5;
+      positions[i*3+2]=(Math.random()-0.5)*70+5;
+    } else {
+      positions[i*3]  =(Math.random()-0.5)*12;
+      positions[i*3+1]=0.5+Math.random()*3.0;
+      positions[i*3+2]=CHURCH_Z+(Math.random()-0.5)*18;
+    }
+    seeds[i]=Math.random()*Math.PI*2;
+  }
+  const geo=new THREE.BufferGeometry();
+  geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+  geo.setAttribute('seed',   new THREE.BufferAttribute(seeds,1));
+
+  const mat=new THREE.PointsMaterial({
+    color:0x90e820, size:0.07, transparent:true, opacity:0.75,
+    sizeAttenuation:true, depthWrite:false,
+  });
+  const pts=new THREE.Points(geo,mat);
+  scene.add(pts);
+  scene.userData.fireflies=pts;
 }
 
 /* ─── CHURCH ─────────────────────────────── */
 function buildChurch() {
   const cz=CHURCH_Z;
-  const brkMat=new THREE.MeshStandardMaterial({color:0x1e1a14,roughness:0.92,map:TEX.brkD,normalMap:TEX.brkN,normalScale:new THREE.Vector2(1,1)});
+  const brkMat=new THREE.MeshStandardMaterial({color:0x1e1a14,roughness:0.92,map:TEX.brkD,normalMap:TEX.brkN,normalScale:new THREE.Vector2(1.2,1.2)});
   const cblMat=new THREE.MeshStandardMaterial({color:0x1c1a14,roughness:0.94,map:TEX.cblD,normalMap:TEX.cblN,normalScale:new THREE.Vector2(0.9,0.9)});
   const wdMat =new THREE.MeshStandardMaterial({color:0x201408,roughness:0.97,map:TEX.wdD, normalMap:TEX.wdN, normalScale:new THREE.Vector2(0.7,0.7)});
   const darkMat=new THREE.MeshStandardMaterial({color:0x0c0a06,roughness:0.95});
@@ -838,8 +744,8 @@ function buildChurch() {
     m.position.set(x,y,z+cz); m.castShadow=true; m.receiveShadow=true; scene.add(m);
   }
   box(2.9,6,0.5,-2.95,3,0); box(2.9,6,0.5,2.95,3,0); box(8,2,0.5,0,5,0);
-  box(0.5,6,13,-4,3,-6.5); box(0.5,6,13,4,3,-6.5);
-  box(9,6,0.5,0,3,-13); box(10,0.45,13.5,0,6.25,-6.5);
+  box(0.5,6,13,-4,3,-6.5);  box(0.5,6,13,4,3,-6.5);
+  box(9,6,0.5,0,3,-13);     box(10,0.45,13.5,0,6.25,-6.5);
   box(9,5.8,13,0,2.9,-6.5,darkMat);
 
   const fl=new THREE.Mesh(new THREE.PlaneGeometry(8.8,12.6),cblMat);
@@ -848,8 +754,7 @@ function buildChurch() {
   [0,1,2].forEach(i=>{
     const sw=3.8-i*0.35,sh=0.18;
     const st=new THREE.Mesh(new THREE.BoxGeometry(sw,sh,0.55),cblMat);
-    st.position.set(0,sh/2+i*sh,cz+0.55-i*0.55);
-    st.receiveShadow=true; st.castShadow=true; scene.add(st);
+    st.position.set(0,sh/2+i*sh,cz+0.55-i*0.55); st.receiveShadow=true; st.castShadow=true; scene.add(st);
   });
 
   const dGeo=new THREE.BoxGeometry(1.05,3.9,0.07);
@@ -857,20 +762,36 @@ function buildChurch() {
   const pivR=new THREE.Group(); pivR.position.set(1.07,0,cz); pivR.add(dR); pivR.rotation.y=-0.16; scene.add(pivR);
   const dL=new THREE.Mesh(dGeo,wdMat); dL.position.set(-0.56,1.95,cz+0.04); dL.castShadow=true; scene.add(dL);
 
-  const doorLamp=new THREE.PointLight(0xc0d850,1.2,14);
+  const doorLamp=new THREE.PointLight(0xb0e030,1.4,16);
   doorLamp.position.set(0,4.5,cz+0.8); scene.add(doorLamp); scene.userData.doorLamp=doorLamp;
 
-  [[-2.95,3,0,2.9,6,0.5],[2.95,3,0,2.9,6,0.5]].forEach(([x,y,z,w,h,d])=>{
-    walls.push(new THREE.Box3(new THREE.Vector3(x-w/2,0,z+cz-d/2),new THREE.Vector3(x+w/2,h,z+cz+d/2)));
-  });
-  [[-4,3,-6.5,0.5,6,13],[4,3,-6.5,0.5,6,13],[0,3,-13,9,6,0.5]].forEach(([x,y,z,w,h,d])=>{
-    walls.push(new THREE.Box3(new THREE.Vector3(x-w/2,0,z+cz-d/2),new THREE.Vector3(x+w/2,h,z+cz+d/2)));
-  });
+  [[-2.95,3,0,2.9,6,0.5],[2.95,3,0,2.9,6,0.5]].forEach(([x,y,z,w,h,d])=>
+    walls.push(new THREE.Box3(new THREE.Vector3(x-w/2,0,z+cz-d/2),new THREE.Vector3(x+w/2,h,z+cz+d/2))));
+  [[-4,3,-6.5,0.5,6,13],[4,3,-6.5,0.5,6,13],[0,3,-13,9,6,0.5]].forEach(([x,y,z,w,h,d])=>
+    walls.push(new THREE.Box3(new THREE.Vector3(x-w/2,0,z+cz-d/2),new THREE.Vector3(x+w/2,h,z+cz+d/2))));
 }
 
-/* ═══════════════════════════════════════════════
+/* ─── FALLBACK TREE ──────────────────────── */
+function makeDeadTreeFallback(x,z,h,sc) {
+  const mat=new THREE.MeshStandardMaterial({color:0x181009,roughness:1});
+  const grp=new THREE.Group();
+  const tr=new THREE.Mesh(new THREE.CylinderGeometry(0.11*sc,0.21*sc,h,7),mat);
+  tr.position.y=h/2; tr.castShadow=true; grp.add(tr);
+  [[0.55,0.4,0.65,2.2],[0.62,2.6,0.55,1.9],[0.72,1.1,0.5,1.6],
+   [0.48,4.0,0.60,2.0],[0.80,5.5,0.42,1.3],[0.40,3.2,0.68,1.7]]
+  .forEach(([hf,az,lean,len])=>{
+    const pv=new THREE.Group(); pv.position.y=h*hf; pv.rotation.order='YXZ';
+    pv.rotation.y=az+h53(x,z,hf)*0.4; pv.rotation.x=lean;
+    const br=new THREE.Mesh(new THREE.CylinderGeometry(0.03*sc,0.065*sc,len*sc,5),mat);
+    br.position.y=(len*sc)/2; br.castShadow=true; pv.add(br); grp.add(pv);
+  });
+  grp.position.set(x,0,z); grp.rotation.y=h53(x,z,3)*Math.PI*2;
+  return grp;
+}
+
+/* ═══════════════════════════════════════════
    CONTROLS
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function setupControls() {
   const canvas=document.getElementById('c');
   window.addEventListener('keydown',e=>{ keys[e.code]=true; if(e.code==='KeyE'&&phase==='playing') tryOpenDoor(); });
@@ -881,47 +802,20 @@ function setupControls() {
     player.rot.y-=e.movementX*0.0023; player.rot.x-=e.movementY*0.0023;
     player.rot.x=Math.max(-1.25,Math.min(1.25,player.rot.x));
   });
-
   const mz=document.getElementById('move-zone'),ms=document.getElementById('move-stick');
-  mz.addEventListener('touchstart',e=>{
-    e.preventDefault(); const t=e.changedTouches[0];
-    joy.move={id:t.identifier,sx:t.clientX,sy:t.clientY,dx:0,dy:0};
-  },{passive:false});
-  mz.addEventListener('touchmove',e=>{
-    e.preventDefault();
-    for (const t of e.changedTouches) {
-      if(t.identifier!==joy.move.id) continue;
-      const dx=t.clientX-joy.move.sx,dy=t.clientY-joy.move.sy;
-      const dist=Math.min(40,Math.hypot(dx,dy)),ang=Math.atan2(dy,dx);
-      joy.move.dx=Math.cos(ang)*dist/40; joy.move.dy=Math.sin(ang)*dist/40;
-      ms.style.transform=`translate(-50%,-50%) translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px)`;
-    }
-  },{passive:false});
+  mz.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];joy.move={id:t.identifier,sx:t.clientX,sy:t.clientY,dx:0,dy:0};},{passive:false});
+  mz.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier!==joy.move.id)continue;const dx=t.clientX-joy.move.sx,dy=t.clientY-joy.move.sy;const dist=Math.min(40,Math.hypot(dx,dy)),ang=Math.atan2(dy,dx);joy.move.dx=Math.cos(ang)*dist/40;joy.move.dy=Math.sin(ang)*dist/40;ms.style.transform=`translate(-50%,-50%) translate(${Math.cos(ang)*dist}px,${Math.sin(ang)*dist}px)`;}},{passive:false});
   const rm=()=>{joy.move.dx=0;joy.move.dy=0;ms.style.transform='translate(-50%,-50%)';};
   mz.addEventListener('touchend',rm); mz.addEventListener('touchcancel',rm);
-
   const lz=document.getElementById('look-zone');
-  lz.addEventListener('touchstart',e=>{
-    e.preventDefault(); const t=e.changedTouches[0];
-    joy.look={id:t.identifier,sx:t.clientX,sy:t.clientY};
-  },{passive:false});
-  lz.addEventListener('touchmove',e=>{
-    e.preventDefault();
-    for (const t of e.changedTouches) {
-      if(t.identifier!==joy.look.id) continue;
-      player.rot.y-=(t.clientX-joy.look.sx)*0.0048;
-      player.rot.x-=(t.clientY-joy.look.sy)*0.0048;
-      player.rot.x=Math.max(-1.25,Math.min(1.25,player.rot.x));
-      joy.look.sx=t.clientX; joy.look.sy=t.clientY;
-    }
-  },{passive:false});
-  lz.addEventListener('touchend',  ()=>{joy.look.id=null;});
-  lz.addEventListener('touchcancel',()=>{joy.look.id=null;});
+  lz.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];joy.look={id:t.identifier,sx:t.clientX,sy:t.clientY};},{passive:false});
+  lz.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches){if(t.identifier!==joy.look.id)continue;player.rot.y-=(t.clientX-joy.look.sx)*0.0048;player.rot.x-=(t.clientY-joy.look.sy)*0.0048;player.rot.x=Math.max(-1.25,Math.min(1.25,player.rot.x));joy.look.sx=t.clientX;joy.look.sy=t.clientY;}},{passive:false});
+  lz.addEventListener('touchend',()=>{joy.look.id=null;}); lz.addEventListener('touchcancel',()=>{joy.look.id=null;});
 }
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    GAME FLOW
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function startGame() {
   const fade=document.getElementById('fade');
   fade.style.transition='opacity 0.55s'; fade.classList.remove('out');
@@ -943,142 +837,129 @@ function startGame() {
 
 function checkTrigger() {
   const inZ=TRIG_BOX.containsPoint(player.pos);
-  if(inZ&&!trigger.entered) {
-    trigger.entered=true; trigger.entryYaw=player.rot.y;
-    trigger.mudBreathing=true; sfx.triggerStab();
-    if(!trigger.graffitiDone) {
-      trigger.graffitiDone=true;
-      setTimeout(()=>{
-        const g=document.getElementById('graffiti-msg');
-        g.classList.add('show');
-        setTimeout(()=>g.classList.remove('show'),1500);
-      },280);
-    }
+  if(inZ&&!trigger.entered){
+    trigger.entered=true; trigger.entryYaw=player.rot.y; trigger.mudBreathing=true; sfx.triggerStab();
+    if(!trigger.graffitiDone){trigger.graffitiDone=true;setTimeout(()=>{const g=document.getElementById('graffiti-msg');g.classList.add('show');setTimeout(()=>g.classList.remove('show'),1500);},280);}
   }
-  if(inZ&&trigger.entered&&!trigger.turned180) {
+  if(inZ&&trigger.entered&&!trigger.turned180){
     let diff=Math.abs(player.rot.y-trigger.entryYaw)%(Math.PI*2);
     if(diff>Math.PI) diff=Math.PI*2-diff;
-    if(diff>Math.PI*0.82) {
-      trigger.turned180=true; scene.fog.density=0.52;
-      treeGroups.forEach(g=>{
-        if(Math.hypot(g.position.x,g.position.z-CHURCH_Z)<28)
-          g.rotation.y+=(Math.random()-0.5)*0.45;
-      });
-    }
+    if(diff>Math.PI*0.82){trigger.turned180=true;scene.fog.density=0.52;treeGroups.forEach(g=>{if(Math.hypot(g.position.x,g.position.z-CHURCH_Z)<28)g.rotation.y+=(Math.random()-0.5)*0.45;});}
   }
-  if(!inZ&&trigger.entered) {
-    trigger.entered=false; trigger.mudBreathing=false;
-    if(!trigger.turned180) scene.fog.density=0.18;
-  }
-  const near=player.pos.distanceTo(DOOR_POS)<3.2;
-  document.getElementById('interact-prompt').style.display=near?'block':'none';
+  if(!inZ&&trigger.entered){trigger.entered=false;trigger.mudBreathing=false;if(!trigger.turned180)scene.fog.density=0.18;}
+  document.getElementById('interact-prompt').style.display=player.pos.distanceTo(DOOR_POS)<3.2?'block':'none';
 }
 
-function tryOpenDoor() {
-  if(player.pos.distanceTo(DOOR_POS)>3.2) return;
-  sfx.doorCreak(); transitionPhase2();
+function tryOpenDoor(){ if(player.pos.distanceTo(DOOR_POS)>3.2)return; sfx.doorCreak(); transitionPhase2(); }
+
+function transitionPhase2(){
+  if(phase==='transitioning')return; phase='transitioning';
+  const fade=document.getElementById('fade'); fade.style.transition='opacity 1.3s'; fade.classList.remove('out');
+  setTimeout(()=>{document.getElementById('interact-prompt').style.display='none';document.getElementById('crosshair').style.display='none';bodyGroup.visible=false;/* TODO Fase 2 */},1300);
 }
 
-function transitionPhase2() {
-  if(phase==='transitioning') return; phase='transitioning';
-  const fade=document.getElementById('fade');
-  fade.style.transition='opacity 1.3s'; fade.classList.remove('out');
-  setTimeout(()=>{
-    document.getElementById('interact-prompt').style.display='none';
-    document.getElementById('crosshair').style.display='none';
-    bodyGroup.visible=false;
-    /* TODO: Fase 2 — Nave Central */
-  },1300);
-}
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    UPDATE
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function updatePlayer(dt) {
   let dx=joy.move.dx,dz=joy.move.dy;
-  if(keys['KeyW']) dz-=1; if(keys['KeyS']) dz+=1;
-  if(keys['KeyA']) dx-=1; if(keys['KeyD']) dx+=1;
+  if(keys['KeyW'])dz-=1; if(keys['KeyS'])dz+=1;
+  if(keys['KeyA'])dx-=1; if(keys['KeyD'])dx+=1;
   const moving=dx!==0||dz!==0;
-  if(moving) {
+  if(moving){
     const mv=new THREE.Vector3(dx,0,dz).normalize();
     mv.applyAxisAngle(new THREE.Vector3(0,1,0),player.rot.y);
     const next=player.pos.clone().addScaledVector(mv,player.speed*dt);
-    const pb=new THREE.Box3(
-      new THREE.Vector3(next.x-player.radius,0,next.z-player.radius),
-      new THREE.Vector3(next.x+player.radius,3.2,next.z+player.radius)
-    );
+    const pb=new THREE.Box3(new THREE.Vector3(next.x-player.radius,0,next.z-player.radius),new THREE.Vector3(next.x+player.radius,3.2,next.z+player.radius));
     if(!walls.some(w=>pb.intersectsBox(w))) player.pos.copy(next);
     const now=clock.elapsedTime;
-    if(now-lastStep>0.58) { sfx.footstep(); lastStep=now; }
+    if(now-lastStep>0.58){sfx.footstep();lastStep=now;}
     player.bob+=dt*5.5;
   }
   const bobY=moving?Math.sin(player.bob)*0.025:0;
   camera.position.set(player.pos.x,player.pos.y+bobY,player.pos.z);
   camera.rotation.copy(player.rot);
-
   flashlight.position.copy(camera.position);
   const dir=new THREE.Vector3(0,0,-1).applyEuler(camera.rotation);
   flashlight.target.position.copy(camera.position.clone().add(dir.multiplyScalar(8)));
-
-  bodyGroup.position.copy(player.pos);
-  bodyGroup.rotation.y=player.rot.y;
+  bodyGroup.position.copy(player.pos); bodyGroup.rotation.y=player.rot.y;
   checkTrigger();
 }
 
 function breatheGround(t) {
-  if(!groundMesh||!trigger.mudBreathing) return;
+  if(!groundMesh||!trigger.mudBreathing)return;
   const pos=groundMesh.geometry.attributes.position;
-  for(let i=0;i<pos.count;i++) {
-    const lx=pos.getX(i),ly=pos.getY(i);
-    pos.setZ(i,Math.sin(lx*0.85+t*0.95)*Math.sin(ly*0.85+t*0.72)*0.042);
-  }
+  for(let i=0;i<pos.count;i++){const lx=pos.getX(i),ly=pos.getY(i);pos.setZ(i,Math.sin(lx*0.85+t*0.95)*Math.sin(ly*0.85+t*0.72)*0.042);}
   pos.needsUpdate=true; groundMesh.geometry.computeVertexNormals();
 }
 
-/* ═══════════════════════════════════════════════
+function animateFireflies(t) {
+  const ff=scene.userData.fireflies; if(!ff)return;
+  const pos=ff.geometry.attributes.position.array;
+  const seeds=ff.geometry.attributes.seed?.array;
+  for(let i=0;i<pos.length;i+=3){
+    const seed=seeds?seeds[i/3]:i;
+    pos[i]   +=Math.cos(t*0.6+seed)*0.005;
+    pos[i+1] +=Math.sin(t*1.1+seed)*0.003;
+    pos[i+2] +=Math.sin(t*0.4+seed*1.3)*0.004;
+    if(pos[i]>56)pos[i]=-56; if(pos[i]<-56)pos[i]=56;
+    pos[i+1]=Math.max(0.2,Math.min(4.0,pos[i+1]));
+  }
+  ff.geometry.attributes.position.needsUpdate=true;
+  ff.material.opacity=0.45+Math.sin(t*1.8)*0.25;
+}
+
+/* ═══════════════════════════════════════════
    MAIN LOOP
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 function animate() {
   requestAnimationFrame(animate);
   const dt=Math.min(clock.getDelta(),0.1);
   const t=clock.elapsedTime;
 
-  if(phase==='menu') {
+  if(phase==='menu'||phase==='loading'){
     camera.position.set(Math.sin(t*0.07)*0.35,2.2+Math.sin(t*0.11)*0.06,8);
     camera.rotation.set(-0.20+Math.sin(t*0.09)*0.008,0,0);
   }
-  if(phase==='playing') {
+  if(phase==='playing'){
     updatePlayer(dt); breatheGround(t);
-    if(Math.random()>0.997) flashlight.intensity=0.2+Math.random()*0.5;
+    // Subtle tree sway
+    treeGroups.forEach((g,i)=>{
+      g.rotation.z=(g.userData.baseRotZ||0)+Math.sin(t*0.5+i*0.8)*0.008;
+    });
+    if(Math.random()>0.997)flashlight.intensity=0.2+Math.random()*0.5;
     else flashlight.intensity+=(flashBase-flashlight.intensity)*0.12;
   }
 
+  animateFireflies(t);
   const pl=scene.userData.ptLight;
-  if(pl) pl.intensity=1.4+Math.sin(t*2.4)*0.14+(Math.random()-0.5)*0.07;
+  if(pl) pl.intensity=1.6+Math.sin(t*2.4)*0.18+(Math.random()-0.5)*0.08;
   const dl=scene.userData.doorLamp;
-  if(dl) dl.intensity=1.2+Math.sin(t*3.1)*0.18+(Math.random()-0.5)*0.06;
+  if(dl) dl.intensity=1.4+Math.sin(t*3.1)*0.22+(Math.random()-0.5)*0.08;
 
-  renderer.render(scene,camera);
+  composer.render(); // EffectComposer with UnrealBloom
 }
 
-/* ═══════════════════════════════════════════════
-   BOOT — synchronous, no async loading
-═══════════════════════════════════════════════ */
-window.addEventListener('DOMContentLoaded', ()=>{
+/* ═══════════════════════════════════════════
+   BOOT
+═══════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async ()=>{
   init();
+  animate(); // render loading screen while fetching models
+
+  await loadModels();
+
   buildEnvironment();
 
-  const menu=document.getElementById('menu');
-  menu.style.display='flex';
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('menu').style.display='flex';
+  phase='menu';
   const fade=document.getElementById('fade');
   fade.style.transition='opacity 0.9s';
-  setTimeout(()=>fade.classList.add('out'),80);
-
-  animate();
+  setTimeout(()=>fade.classList.add('out'),100);
 
   document.getElementById('btn-start').addEventListener('click',()=>{ sfx.init(); sfx.resume(); startGame(); });
   document.getElementById('btn-quit').addEventListener('click',()=>{
-    const fade=document.getElementById('fade');
     fade.style.transition='opacity 0.6s'; fade.classList.remove('out');
     setTimeout(()=>window.close(),650);
   });
